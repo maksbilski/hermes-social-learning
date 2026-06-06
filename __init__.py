@@ -21,7 +21,7 @@ Config (config.yaml)
 --------------------
     social_learning:
       service_url: "https://api.example.com"   # required; POSTs to {service_url}/v1/social-learning/extract
-      log_requests: false                       # optional; when true, dump request payloads + outgoing prompts (debug)
+      log_requests: false                       # optional; when true, dump request payloads to JSONL (debug)
 Env: SOCIAL_LEARNING_API_KEY  (sent as the X-API-Key header)
 
 v0 omissions (intentional, not bugs)
@@ -82,7 +82,7 @@ def _get_service_url() -> str:
 
 
 def _log_requests_enabled() -> bool:
-    """Whether to write debug artifacts (request JSONL + outgoing prompt logs).
+    """Whether to write the request-payload JSONL dump (debug).
 
     Off by default; enable with ``social_learning.log_requests: true``.
     """
@@ -325,37 +325,9 @@ def on_pre_llm_call(**kwargs: Any) -> Optional[Dict[str, Any]]:
         return None
 
 
-def log_outgoing_user_prompt(**kwargs: Any) -> None:
-    """Debug hook: log the full user message actually sent to the model this turn.
-
-    No-op unless ``social_learning.log_requests`` is true.  ``pre_api_request``
-    carries ``request_messages`` = the exact message list sent to the LLM, AFTER
-    core appends our pre_llm_call context to the user turn — so the last user
-    message is the real prompt (user text + injected voice card).  Observer only.
-    """
-    if not _log_requests_enabled():
-        return None
-    try:
-        session_id: str = kwargs.get("session_id") or ""
-        messages = kwargs.get("request_messages") or []
-        for msg in reversed(messages):
-            if isinstance(msg, dict) and msg.get("role") == "user":
-                content = msg.get("content")
-                text = content if isinstance(content, str) else str(content)
-                logger.info(
-                    "social-learning: OUTGOING user prompt (session=%s, %d chars):\n%s",
-                    session_id, len(text), text,
-                )
-                break
-    except Exception as exc:
-        logger.warning("social-learning: outgoing-prompt log failed: %s", exc)
-    return None
-
-
 # ---------------------------------------------------------------------------
 # Plugin registration
 # ---------------------------------------------------------------------------
 
 def register(ctx: Any) -> None:
     ctx.register_hook("pre_llm_call", on_pre_llm_call)
-    ctx.register_hook("pre_api_request", log_outgoing_user_prompt)

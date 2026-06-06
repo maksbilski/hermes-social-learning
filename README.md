@@ -34,7 +34,7 @@ Configure the service in `~/.hermes/config.yaml`:
 ```yaml
 social_learning:
   service_url: "https://api.example.com"   # POSTs to {service_url}/v1/social-learning/extract
-  log_requests: false                       # optional debug: dump request payloads + outgoing prompts
+  log_requests: false                       # optional debug: dump request payloads to JSONL
 ```
 
 Set the API key (sent as `X-API-Key`):

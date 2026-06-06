@@ -5,4 +5,3 @@ author: humalike
 license: MIT
 hooks:
   - pre_llm_call
-  - pre_api_request

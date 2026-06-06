@@ -128,7 +128,7 @@ step for DM-only or per-user deployments.
 
 ## Step 6 — (Optional) Debug logging
 
-Off by default. Enable to dump exact request payloads and outgoing prompts:
+Off by default. Enable to dump exact request payloads to JSONL:
 
 ```bash
 hermes config set social_learning.log_requests true
