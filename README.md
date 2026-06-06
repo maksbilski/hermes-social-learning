@@ -142,9 +142,6 @@ Hermes formats the user text before the plugin sees it (group sender prefix
 python -m pytest tests/ -q
 ```
 
-`examples/mock_sl.py` is a tiny local stand-in for the service for end-to-end
-testing without the real backend.
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
