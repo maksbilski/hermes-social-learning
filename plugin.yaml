@@ -1,0 +1,8 @@
+name: social-learning
+version: 0.1.0
+description: "Matches the agent's reply style to how each conversation talks. Calls an external service to turn the transcript into a voice card and injects it before each reply."
+author: humalike
+license: MIT
+hooks:
+  - pre_llm_call
+  - pre_api_request
