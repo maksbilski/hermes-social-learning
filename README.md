@@ -88,16 +88,6 @@ The plugin uses only `prompt_block`. 400 / 502 / timeouts / other non-200 are
 skipped silently and retried on the next 5-turn cycle. Full schema:
 [docs.humalike.com](https://docs.humalike.com/api-reference/extract).
 
-## Transcript handling
-
-Hermes formats the user text before the plugin sees it (group sender prefix
-`[Name] `, channel-context backfill, control markers). The plugin:
-
-- lifts the `[Name]` prefix into the message `author`,
-- drops Hermes control markers (`[New message]`, `[User sent …]`, etc.),
-- splits each turn's lines into separate messages (people send short, separate
-  lines, so a newline is almost always a message boundary).
-
 ## Limitations (v0)
 
 - **No persistence** — cards live in memory; lost on gateway restart.
