@@ -1,14 +1,18 @@
 # social-learning (Hermes plugin)
 
-Makes a [Hermes Agent](https://github.com/NousResearch/hermes-agent) match **how
-each conversation talks**. It calls an external HTTP service that turns the
-recent transcript into a "voice card" (a prompt block describing the
-conversational style), and injects that card into the prompt before each reply
-so the model mirrors the conversation's tone.
+A [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin that makes
+the agent match **how each conversation talks**, powered by
+[Humalike](https://humalike.com).
 
-> The voice-card extraction lives in your own service (e.g. humalike). This
-> plugin is the Hermes integration: it observes the conversation, calls the
-> service, caches the card, and injects it.
+**Humalike** is a hosted API that turns a chat transcript into a "voice card" — a
+prompt block describing a conversation's style: tone, formatting, lexicon,
+in-jokes, and norms. See the [Humalike docs](https://docs.humalike.com).
+
+This plugin is the **Hermes ↔ Humalike integration**. It watches the
+conversation, sends the recent transcript to Humalike, caches the returned voice
+card, and injects it into the prompt before each reply so the model mirrors the
+conversation's tone. It does not do any analysis itself — Humalike produces the
+card; the plugin only observes, calls, caches, and injects.
 
 ## How it works — two clocks in one hook
 
@@ -25,22 +29,23 @@ clears all cards.
 ## Install (drop-in)
 
 ```bash
-git clone <this-repo-url> ~/.hermes/plugins/social-learning
+git clone https://github.com/maksbilski/hermes-social-learning ~/.hermes/plugins/social-learning
 hermes plugins enable social-learning
 ```
 
-Configure the service in `~/.hermes/config.yaml`:
+Point the plugin at the Humalike API in `~/.hermes/config.yaml`:
 
 ```yaml
 social_learning:
-  service_url: "https://api.example.com"   # POSTs to {service_url}/v1/social-learning/extract
-  log_requests: false                       # optional debug: dump request payloads to JSONL
+  service_url: "https://api.humalike.com"   # Humalike API; POSTs to {service_url}/v1/social-learning/extract
+  log_requests: false                        # optional debug: dump request payloads to JSONL
 ```
 
-Set the API key (sent as `X-API-Key`):
+Set your Humalike API key (sent as the `X-API-Key` header) — get one from your
+[Humalike dashboard](https://humalike.com):
 
 ```bash
-export SOCIAL_LEARNING_API_KEY="your-api-key"   # or add to ~/.hermes/.env
+export SOCIAL_LEARNING_API_KEY="your-humalike-api-key"   # or add to ~/.hermes/.env
 ```
 
 Finally restart the gateway (or start a fresh session) so the plugin loads.
@@ -82,7 +87,10 @@ This makes Hermes treat the group as one shared conversation (shared context
 across participants) — usually what you want for a community-voice bot. DMs are
 unaffected.
 
-## External service contract
+## Humalike API contract
+
+The plugin calls the [Humalike Social Learning API](https://docs.humalike.com)
+once per refresh:
 
 `POST {service_url}/v1/social-learning/extract`
 
@@ -102,11 +110,12 @@ Request:
 
 Response (200):
 ```json
-{ "profile": "...", "prompt_block": "Match this community's voice. Write..." }
+{ "profile": { "...": "..." }, "prompt_block": "Match this community's voice. Write..." }
 ```
 
 The plugin uses only `prompt_block`. 400 / 502 / timeouts / other non-200 are
-skipped silently and retried on the next 5-turn cycle.
+skipped silently and retried on the next 5-turn cycle. Full schema:
+[docs.humalike.com](https://docs.humalike.com/api-reference/extract).
 
 ## Transcript handling
 
