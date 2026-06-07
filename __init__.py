@@ -211,7 +211,6 @@ def _refresh_card(session_id: str, conversation_history: Any) -> None:
     try:
         transcript = _build_transcript(conversation_history)
         if not transcript:
-            # Service requires at least one message.
             return
 
         api_key = os.environ.get(API_KEY_ENV, "")
@@ -226,7 +225,7 @@ def _refresh_card(session_id: str, conversation_history: Any) -> None:
             url, len(transcript),
             "set" if api_key else "MISSING", session_id,
         )
-        _log_request(session_id, url, body)  # debug-only payload dump
+        _log_request(session_id, url, body)
         response = requests.post(
             url,
             headers={
@@ -285,13 +284,11 @@ def on_pre_llm_call(**kwargs: Any) -> Optional[Dict[str, Any]]:
 
         conversation_history = kwargs.get("conversation_history") or []
 
-        # --- SLOW CLOCK: increment turn counter and maybe spawn a refresh ---
         with _LOCK:
             _COUNTER[session_id] = _COUNTER.get(session_id, 0) + 1
             n = _COUNTER[session_id]
             has_card = session_id in _CACHE
 
-        # Per-turn heartbeat so liveness is visible from the very first message.
         logger.debug(
             "social-learning: turn %d session=%s card=%s (refresh every %d turns)",
             n, session_id, "cached" if has_card else "none", REFRESH_EVERY,
@@ -308,7 +305,6 @@ def on_pre_llm_call(**kwargs: Any) -> Optional[Dict[str, Any]]:
                 daemon=True,
             ).start()
 
-        # --- FAST CLOCK: return cached card (if any) ---
         with _LOCK:
             card = _CACHE.get(session_id)
 
