@@ -14,18 +14,6 @@ card, and injects it into the prompt before each reply so the model mirrors the
 conversation's tone. It does no analysis itself — the API produces the card; the
 plugin only observes, calls, caches, and injects.
 
-## How it works — two clocks in one hook
-
-Both loops live in the `pre_llm_call` hook, keyed by `session_id`:
-
-| Clock | When | What |
-|---|---|---|
-| **Slow** | Every 5th turn | Fire a detached (non-blocking) POST to the service with the last 100 messages; cache the returned `prompt_block`. Never delays the reply. |
-| **Fast** | Every reply | Read the cached card for this session (one in-memory lookup) and append it to the prompt. No card yet → nothing injected. |
-
-State is **in-memory only**, keyed by `session_id`. Restarting the gateway
-clears all cards.
-
 ## Install (drop-in)
 
 ```bash
