@@ -111,20 +111,20 @@ except urllib.error.HTTPError as e:
 PY
 ```
 
-## Step 5 — (Optional) Group community voice
+## Step 5 — Group voice (required for group chats)
 
-The plugin keys by `session_id`. In group chats Hermes defaults to
-`group_sessions_per_user: true` (one session per participant), so the plugin
-would learn a separate card per person. To learn **one shared voice for the
-whole group**, set the top-level key:
+**Required** whenever the agent runs in group chats. The plugin keys by
+`session_id`, and Hermes defaults to `group_sessions_per_user: true` (one session
+per participant), which produces a voice card per person instead of per group.
+To get **one voice card per group**, set the top-level key:
 
 ```bash
 hermes config set group_sessions_per_user false
 ```
 
-Warn the user: this makes Hermes treat the whole group as one shared
-conversation (shared context across participants). DMs are unaffected. Skip this
-step for DM-only or per-user deployments.
+Tell the user this makes Hermes treat the group as one shared conversation
+(shared context across participants). DMs are unaffected — skip only for
+DM-only deployments.
 
 ## Step 6 — (Optional) Debug logging
 

@@ -48,19 +48,15 @@ service URL and API key.
 
 ## Group chats — required setting
 
-The plugin keys by **session_id**. In groups, Hermes defaults to
-`group_sessions_per_user: true`, giving each participant a separate session — so
-the plugin would learn a separate card per person and nobody reaches the 5-turn
-refresh. To learn **one shared voice for the whole group**, set this top-level
-key in `~/.hermes/config.yaml`:
+To get **one voice card per group** (instead of one per participant), set this
+top-level key in `~/.hermes/config.yaml`:
 
 ```yaml
 group_sessions_per_user: false
 ```
 
-This makes Hermes treat the group as one shared conversation (shared context
-across participants) — usually what you want for a community-voice bot. DMs are
-unaffected.
+Without it, Hermes gives each participant a separate session, so the plugin
+learns a card per person. DMs are unaffected.
 
 ## Social Learning API contract
 
