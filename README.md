@@ -46,19 +46,6 @@ skill that walks an agent through the full setup (clone, enable, set service URL
 "follow SKILL.md to set up social-learning", and answer its prompts for the
 service URL and API key.
 
-### Verify it works
-
-After 5+ messages in one conversation:
-
-```bash
-tail -n 50 ~/.hermes/logs/agent.log | grep social-learning
-```
-
-Expected: `firing detached refresh` → `POST .../v1/social-learning/extract` →
-`refreshed voice card (… chars …)` → `injecting voice card …`. Repeated
-`non-200 response` → check the API key / service URL. Nothing at all → confirm
-`hermes plugins list` shows it enabled and that you restarted the gateway.
-
 ## Group chats — required setting
 
 The plugin keys by **session_id**. In groups, Hermes defaults to
